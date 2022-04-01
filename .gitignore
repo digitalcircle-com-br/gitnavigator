@@ -21,3 +21,5 @@ packing/_mac/GitNavigator.app/Contents/MacOS/gitnavigator
 .vscode/launch.json
 packing/distro/gitnavigator_darwin_arm64.zip
 lib/.DS_Store
+cmd/__debug_bin
+

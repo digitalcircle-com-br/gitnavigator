@@ -172,6 +172,11 @@ class API {
 export interface Repo {
     dir: string
     status: string
+    err: string
+    size: number
+    files: number
+    branch: string
+    pending: boolean
 }
 
 export interface Cmd {

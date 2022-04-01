@@ -66,6 +66,11 @@ func Start() {
 		enc(dirs, writer)
 	})
 
+	r.Methods(http.MethodGet).Path("/api/v1/dirs/reload").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		status := repomgr.DiscoverRepos()
+		enc(status, writer)
+	})
+
 	r.Methods(http.MethodGet).Path("/api/v1/dirs/discover").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		go repomgr.DiscoverRepos()
 		enc("ok", writer)

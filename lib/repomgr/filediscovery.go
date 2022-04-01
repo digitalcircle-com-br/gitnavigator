@@ -1,10 +1,11 @@
 package repomgr
 
 import (
+	"fmt"
+	"gitnavigator/lib/action"
 	"gitnavigator/lib/config"
 	"io/fs"
 	"log"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"sort"
@@ -12,38 +13,24 @@ import (
 )
 
 type GitDir struct {
-	Id     string `json:"id"`
-	Dir    string `json:"dir"`
-	Status string `json:"status"`
-	Err    string `json:"err"`
+	Id      string `json:"id"`
+	Dir     string `json:"dir"`
+	Status  string `json:"status"`
+	Err     string `json:"err"`
+	Size    int64  `json:"size"`
+	Files   int64  `json:"files"`
+	Branch  string `json:"branch"`
+	Pending bool   `json:"pending"`
 }
 
-//type Node struct {
-//	Dir      string
-//	Children map[string]*Node
-//}
-//
-//func NewNode(s string) *Node{
-//	ret:=&Node{
-//		Dir:      s,
-//		Children: make(map[string]*Node),
-//	}
-//	return ret
-//}
 var dirs = make(map[string]*GitDir)
-
-//var root = &Node{
-//	Children: make(map[]),
-//}
-
-func RepoStatus(d string) (string, error) {
-	cmd := exec.Command("git", "-C", d, "status")
-	bs, err := cmd.CombinedOutput()
-	return string(bs), err
-}
 
 func Get(d string) *GitDir {
 	return dirs[d]
+}
+
+func NErr(s string, p ...interface{}) error {
+	return fmt.Errorf(s, p...)
 }
 
 func List() []string {
@@ -71,35 +58,69 @@ func DirsArr() []*GitDir {
 	return ret
 }
 
-func DiscoverRepos() {
+var inDisover = false
+
+func DiscoverRepos() bool {
+	if inDisover {
+		return false
+	}
+	inDisover = true
+	defer func() {
+		inDisover = false
+	}()
 	log.Printf("Running DiscoverRepos on: %s", config.Config.Root)
 	r := config.Config.Root
 
-	go filepath.Walk(r, func(p string, info fs.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() && strings.HasSuffix(p, ".git") {
-			p = path.Dir(p)
-			_, ok := dirs[p]
-			if !ok {
-				gd := &GitDir{
-					Id:     p,
-					Dir:    p,
-					Status: "",
-					Err:    "",
-				}
-				st, err := RepoStatus(p)
-				if err != nil {
-					gd.Err = err.Error()
-				}
-				gd.Status = st
-				dirs[p] = gd
-				log.Printf("Found repo: %s", p)
-				//ret <- p
+	go func() {
+		actDir := ""
+		err := filepath.Walk(r, func(p string, info fs.FileInfo, err error) error {
+			actDir = p
+			if err != nil {
+				return err
 			}
+			if info.IsDir() && strings.HasSuffix(p, ".git") {
+				p = path.Dir(p)
+
+				branch, err := action.GitBranch(p)
+				if err != nil {
+					branch = []byte("No Branch")
+				}
+
+				status, err := action.GitStatusShort(p)
+				if err != nil {
+					return NErr("Cant read git status of %s: %s", p, err.Error())
+				}
+
+				pending := len(status) > 1
+
+				_, ok := dirs[p]
+				if !ok {
+					gd := &GitDir{
+						Id:      p,
+						Dir:     p,
+						Status:  string(status),
+						Err:     "",
+						Size:    action.Du(p),
+						Files:    action.NoFiles(p),
+						Branch:  string(branch),
+						Pending: pending,
+					}
+
+					dirs[p] = gd
+					log.Printf("Found repo: %s", p)
+					//ret <- p
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			log.Printf("Error checking: %s: %s", actDir, err.Error())
+			action.Notify("Error checking: %s: %s", actDir, err.Error())
 		}
-		return nil
-	})
+		action.Notify("Finished reading repos. Found %v repos", len(dirs))
+	}()
+
+	return true
 
 }
