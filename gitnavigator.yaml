@@ -1,0 +1,17 @@
+addr: :19999
+root: ~/projects
+favorites: []
+global_cmds:
+  # - label: pwd
+  #   cmd: [pwd]
+  # - label: ls
+  #   cmd: [ls]
+repo_cmds:
+  - label: Open Terminal
+    cmd: [open, -a, Iterm.app, $repo]
+  - label: Open Folder
+    cmd: [open, $repo]
+  - label: Open VSCode
+    cmd: [code, $repo]
+  - label: Open Goland
+    cmd: [open, -a, Goland.app, $repo]

@@ -13,3 +13,11 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+packing/_mac/GitNavigator.app/Contents/MacOS/devserver
+.DS_Store
+packing/distro/devserver_darwin_arm64.zip
+packing/distro/devserver_windows_amd64.zip
+packing/_mac/GitNavigator.app/Contents/MacOS/gitnavigator
+.vscode/launch.json
+packing/distro/gitnavigator_darwin_arm64.zip
+lib/.DS_Store
