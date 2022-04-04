@@ -15,6 +15,10 @@ repo_cmds:
     os: darwin
   - label: Open Folder
     cmd: [xdg-open, $repo]
+    os: linux
+  - label: Open Folder
+    cmd: [open, $repo]
+    os: darwin    
   - label: Open VSCode
     cmd: [code, $repo]
   - label: Open Goland
@@ -23,3 +27,6 @@ repo_cmds:
   - label: Open Goland
     cmd: [ goland, $repo ]
     os: linux
+  - label: Open Readme.md
+    cmd: [ "@open_navigator" ]
+    os: ""    

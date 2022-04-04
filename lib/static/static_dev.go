@@ -9,6 +9,9 @@ import (
 	"path"
 )
 
+func init() {
+	println("Using static dev")
+}
 func Serve(w http.ResponseWriter, r *http.Request) {
 	wd, err := os.Getwd()
 	pt := r.URL.Path

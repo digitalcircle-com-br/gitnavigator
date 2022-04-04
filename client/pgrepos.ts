@@ -1,4 +1,4 @@
-import { ReplaceCenter, ReplaceTitle,SetGlobalRefresh } from "./index.js"
+import { ReplaceCenter, ReplaceTitle, SetGlobalRefresh } from "./index.js"
 import api, { Cmd, Repo, ReqCmd } from "./api.js"
 export async function Show() {
 
@@ -19,6 +19,7 @@ export async function Show() {
         height: 40,
         elements: []
     }
+
 
     if (gcmds) {
         for (let c of gcmds) {
@@ -61,16 +62,16 @@ export async function Show() {
     }
     let tb: webix.ui.datatableConfig = {
         view: "datatable",
-        resizeColumn:{size:10},
-        resizeRow:false,
-        select:"row",
+        resizeColumn: { size: 10 },
+        resizeRow: false,
+        select: "row",
         //autoConfig: true
-        columns:[
-            {id:"dir",fillspace:5,sort:"string"},
-            {id:"size",fillspace:1,sort:"int"},
-            {id:"files",fillspace:1,sort:"int"},
-            {id:"branch",fillspace:1,sort:"string"},
-            {id:"pending",fillspace:1,sort:"string"},
+        columns: [
+            { id: "dir", fillspace: 5, sort: "string" },
+            { id: "size", fillspace: 1, sort: "int" },
+            { id: "files", fillspace: 1, sort: "int" },
+            { id: "branch", fillspace: 1, sort: "string" },
+            { id: "pending", fillspace: 1, sort: "string" },
         ]
     }
 
@@ -96,15 +97,15 @@ export async function Show() {
         rows: []
     }
     //@ts-ignore
-    if (gTbCfg.elements?.length > 0) {
-        //@ts-ignore
-        layout.rows.push(gTbCfg)
-    }
+    // if (gTbCfg.elements?.length > 0) {
+    //     //@ts-ignore
+    //     layout.rows.push(gTbCfg)
+    // }
     //@ts-ignore
-    if (rTbCfg.elements?.length > 0) {
-        //@ts-ignore
-        layout.rows.push(rTbCfg)
-    }
+    // if (rTbCfg.elements?.length > 0) {
+    //     //@ts-ignore
+    //     layout.rows.push(rTbCfg)
+    // }
     //@ts-ignore
     layout.rows.push(txtFilterCfg, tb)
     ReplaceTitle("Repos")
@@ -114,10 +115,26 @@ export async function Show() {
     let txtFilter = $$(txtFilterCfg.id as string) as webix.ui.text
     dt.parse(data, "json")
 
-    SetGlobalRefresh(async ()=>{
+    SetGlobalRefresh(async () => {
         let data = await api.GitRepos()
         let txtFilter = $$(txtFilterCfg.id as string) as webix.ui.text
         dt.parse(data, "json")
         webix.message(`Data reloaded - found ${data.length} repos`)
     })
+
+  
+
+    //@ts-ignore
+    if (rTbCfg.elements.length > 1) {
+        let ctxMenuCfg = {
+            view: "context", id: "cm",
+            body:{
+                view:"toolbar",
+                rows:rTbCfg.elements
+            },
+            master: $$(tb.id as string)   // component object
+        }
+
+        webix.ui(ctxMenuCfg);
+    }
 }

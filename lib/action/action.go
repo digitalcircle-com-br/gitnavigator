@@ -17,40 +17,51 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
-func OpenGUI() {
+var cmds = make(map[string]func(i interface{}) ([]byte, error))
+
+func Exec(c string, i interface{}) ([]byte, error) {
+	cmd, ok := cmds[c]
+	if !ok {
+		return []byte(fmt.Sprintf("Cmd %s not found", c)), nil
+	}
+	return cmd(i)
+}
+func OpenGUI(i interface{}) ([]byte, error) {
 	open.Run("http://localhost" + config.Config.Addr)
+	return nil, nil
 }
 
-func OpenFolder(d string) {
-	cmd := exec.Command("open", d)
-	bs, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf(err.Error())
-	} else {
-		log.Printf("%s", string(bs))
-	}
-}
+// func OpenFolder(d string) {
+// 	cmd := exec.Command("open", d)
+// 	bs, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		log.Printf(err.Error())
+// 	} else {
+// 		log.Printf("%s", string(bs))
+// 	}
+// }
 
-func OpenCode(d string) {
-	cmd := exec.Command("code", d)
-	bs, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf(err.Error())
-	} else {
-		log.Printf("%s", string(bs))
-	}
-}
-func OpenGoland(d string) {
-	cmd := exec.Command("open", "-na", "GoLand.app", d)
-	bs, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf(err.Error())
-	} else {
-		log.Printf("%s", string(bs))
-	}
-}
+// func OpenCode(d string) {
+// 	cmd := exec.Command("code", d)
+// 	bs, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		log.Printf(err.Error())
+// 	} else {
+// 		log.Printf("%s", string(bs))
+// 	}
+// }
+// func OpenGoland(d string) {
+// 	cmd := exec.Command("open", "-na", "GoLand.app", d)
+// 	bs, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		log.Printf(err.Error())
+// 	} else {
+// 		log.Printf("%s", string(bs))
+// 	}
+// }
 
-func OpenNavigator(d string) {
+func OpenNavigator(i interface{})([]byte,error) {
+	d := i.(string)
 	bs, err := os.ReadFile(path.Join(d, ".git", "config"))
 	if err != nil {
 		log.Printf("Error: %s ", err.Error())
@@ -73,6 +84,7 @@ func OpenNavigator(d string) {
 	cmd := exec.Command("open", url)
 
 	cmd.Run()
+	return nil,nil
 }
 
 func OpenLog(d string) {
@@ -97,8 +109,13 @@ func OpenTerminal(d string) {
 }
 
 func ExecGlobalCmd(r *types.ReqCmd) ([]byte, error) {
+
 	for _, v := range config.Config.GlobalCmds {
 		if v.Id == r.Id {
+			c, ok := cmds[v.Cmd[0]]
+			if ok {
+				return c(nil)
+			}
 			return Cmd(v.Cmd)
 		}
 	}
@@ -106,9 +123,14 @@ func ExecGlobalCmd(r *types.ReqCmd) ([]byte, error) {
 }
 
 func ExecRepoCmd(r *types.ReqCmd) ([]byte, error) {
+
 	var toexe []string
 	for _, v := range config.Config.RepoCmds {
 		if v.Id == r.Id {
+			c, ok := cmds[v.Cmd[0]]
+			if ok {
+				return c(r.Repo)
+			}
 			toexe = make([]string, len(v.Cmd))
 			copy(toexe, v.Cmd)
 			for i, v := range toexe {
@@ -180,4 +202,8 @@ func ConfigReload() {
 	} else {
 		Notify("Reloaded: %s", fname)
 	}
+}
+
+func Setup() {
+	cmds["@open_navigator"] = OpenNavigator
 }

@@ -1,9 +1,10 @@
 package tray
 
 import (
-	"github.com/getlantern/systray"
 	"gitnavigator/lib/action"
 	"runtime"
+
+	"github.com/getlantern/systray"
 )
 
 //var root = ""
@@ -27,7 +28,7 @@ func Run() {
 			for {
 				select {
 				case <-open.ClickedCh:
-					action.OpenGUI()
+					action.OpenGUI(nil)
 				case <-refresh.ClickedCh:
 					action.ConfigReload()
 				case <-quit.ClickedCh:
@@ -41,7 +42,7 @@ func Run() {
 	})
 }
 
-var menus = make(map[string]*systray.MenuItem)
+// var menus = make(map[string]*systray.MenuItem)
 
 func SetTitle(s string) {
 	systray.SetTitle(s)

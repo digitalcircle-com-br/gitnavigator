@@ -16,6 +16,7 @@ func parseCmd() {
 
 func Run() {
 	hErr(func() error {
+		action.Setup()
 		cfg := flag.String("c", "", "Optional config file - defaults to [~/.gitnavigator.yaml]")
 		flag.Parse()
 		err := config.Load(*cfg)
@@ -37,7 +38,7 @@ func hErr(h func() error) {
 }
 
 func OpenGUI() {
-	action.OpenGUI()
+	action.OpenGUI(nil)
 }
 
 func AddFavorite(d string) {

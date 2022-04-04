@@ -5,5 +5,5 @@ import _ "embed"
 //go:embed git.ico
 var ico_win []byte
 
-//go:embed git.png
+//go:embed git.jpg
 var ico_notwin []byte
