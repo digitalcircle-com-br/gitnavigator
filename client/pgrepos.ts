@@ -1,4 +1,4 @@
-import { ReplaceCenter, ReplaceTitle } from "./index.js"
+import { ReplaceCenter, ReplaceTitle,SetGlobalRefresh } from "./index.js"
 import api, { Cmd, Repo, ReqCmd } from "./api.js"
 export async function Show() {
 
@@ -113,4 +113,11 @@ export async function Show() {
     let data = await api.GitRepos()
     let txtFilter = $$(txtFilterCfg.id as string) as webix.ui.text
     dt.parse(data, "json")
+
+    SetGlobalRefresh(async ()=>{
+        let data = await api.GitRepos()
+        let txtFilter = $$(txtFilterCfg.id as string) as webix.ui.text
+        dt.parse(data, "json")
+        webix.message(`Data reloaded - found ${data.length} repos`)
+    })
 }

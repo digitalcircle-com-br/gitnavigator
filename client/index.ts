@@ -14,6 +14,13 @@ export function ReplaceCenter(nl: any) {
     }
 }
 
+let globalRefresh = () => {
+}
+
+export function SetGlobalRefresh(a: () => void) {
+    globalRefresh = a
+}
+
 async function main() {
     //await api.init()
 
@@ -61,7 +68,7 @@ async function main() {
             //     }
             // },
             {
-                template: "<img src='resources/logo.png' style='height: 40px;width: 40px'></img>",
+                template: "<img src='resources/logo_512.png' style='height: 40px;width: 40px'></img>",
                 width: 58,
                 borderless: true
             },
@@ -69,6 +76,11 @@ async function main() {
             {view: "label", label: "Git Navigator ★", width: 120, css: {color: "#2d2d2d !important"}},
             {view: "label", id: "lbTitle"},
             {},
+            {
+                view: "icon", icon: "fas fa-sync",tip:"Refreshes Repos List", click: () => {
+                    globalRefresh()
+                }
+            },
             // {view: "label", id: "lbMe", label: me, width: me.length * 8},
             // {
             //     view: "icon", icon: "fas fa-user", click: () => {

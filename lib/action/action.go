@@ -14,22 +14,11 @@ import (
 	"strings"
 
 	"github.com/gen2brain/beeep"
+	"github.com/skratchdot/open-golang/open"
 )
 
-//func GitLog(d string) {
-//	cmd := exec.Command("git", "-C", d, "--nopager", "log", "-1")
-//	bs, err := cmd.CombinedOutput()
-//
-//}
-
 func OpenGUI() {
-	cmd := exec.Command("open", "http://localhost"+config.Config.Addr)
-	bs, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf(err.Error())
-	} else {
-		log.Printf("%s", string(bs))
-	}
+	open.Run("http://localhost" + config.Config.Addr)
 }
 
 func OpenFolder(d string) {
@@ -182,4 +171,13 @@ func NoFiles(s string) int64 {
 
 	})
 	return total
+}
+
+func ConfigReload() {
+	fname, err := config.Reload()
+	if err != nil {
+		Notify(err.Error())
+	} else {
+		Notify("Reloaded: %s", fname)
+	}
 }

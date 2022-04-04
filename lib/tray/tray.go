@@ -3,6 +3,7 @@ package tray
 import (
 	"github.com/getlantern/systray"
 	"gitnavigator/lib/action"
+	"runtime"
 )
 
 //var root = ""
@@ -13,13 +14,22 @@ import (
 func Run() {
 	systray.Run(func() {
 		SetTitle("Git Navigator")
+		if runtime.GOOS == "windows" {
+			systray.SetIcon(ico_win)
+		} else {
+			systray.SetIcon(ico_notwin)
+		}
+
 		open := systray.AddMenuItem("Open", "Open GUI")
+		refresh := systray.AddMenuItem("Refresh", "Reloads Config")
 		quit := systray.AddMenuItem("Quit", "Quit the whole app")
 		go func() {
 			for {
 				select {
 				case <-open.ClickedCh:
 					action.OpenGUI()
+				case <-refresh.ClickedCh:
+					action.ConfigReload()
 				case <-quit.ClickedCh:
 					systray.Quit()
 				}

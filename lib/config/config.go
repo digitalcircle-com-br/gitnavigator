@@ -2,34 +2,22 @@ package config
 
 import (
 	"fmt"
+	"gitnavigator/lib/types"
 	"os"
 	"os/user"
 	"path"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-type CmdCfg struct {
-	Id    string   `json:"id"`
-	Label string   `json:"label"`
-	Cmd   []string `json:"cmd"`
-}
-
-type cfg struct {
-	Addr       string   `yaml:"addr"`
-	Root       string   `yaml:"root"`
-	Favorites  []string `yaml:"favorites"`
-	GlobalCmds []CmdCfg `yaml:"global_cmds"`
-	RepoCmds   []CmdCfg `yaml:"repo_cmds"`
-}
-
-var Config = &cfg{
+var Config = &types.Config{
 	Addr:       ":19999",
-	Root:       "~/projects",
 	Favorites:  []string{},
-	GlobalCmds: []CmdCfg{},
-	RepoCmds:   []CmdCfg{},
+	GlobalCmds: []types.CmdCfg{},
+	RepoCmds:   []types.CmdCfg{},
+	Root:       "",
 }
 
 func enc() ([]byte, error) {
@@ -39,8 +27,33 @@ func dec(bs []byte) error {
 	return yaml.Unmarshal(bs, Config)
 }
 
+func GlobalCmdS() []types.CmdCfg {
+	ret := make([]types.CmdCfg, 0)
+	thisOS := runtime.GOOS
+	for _, v := range Config.GlobalCmds {
+		if v.Os == "" || v.Os == thisOS {
+			ret = append(ret, v)
+		}
+	}
+	return ret
+}
+
+func RepoCmdS() []types.CmdCfg {
+	ret := make([]types.CmdCfg, 0)
+	thisOS := runtime.GOOS
+	for _, v := range Config.RepoCmds {
+		if v.Os == "" || v.Os == thisOS {
+			ret = append(ret, v)
+		}
+	}
+	return ret
+}
+
+var cfgName = ""
+
 //Load will load config from ~/.gitnavigator.yaml.
 func Load(fname string) error {
+	cfgName = fname
 	usr, err := user.Current()
 	if err != nil {
 		return err
@@ -67,10 +80,12 @@ func Load(fname string) error {
 
 	for i := range Config.RepoCmds {
 		Config.RepoCmds[i].Id = fmt.Sprintf("r-%v", i)
-
 	}
 
 	return err
+}
+func Reload() (string, error) {
+	return cfgName, Load(cfgName)
 }
 
 //Save will save actual config to ~/.gitnavigator.yaml.

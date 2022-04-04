@@ -8,10 +8,18 @@ global_cmds:
   #   cmd: [ls]
 repo_cmds:
   - label: Open Terminal
+    cmd: [gnome-terminal, --working-directory, $repo]
+    os: linux
+  - label: Open Terminal
     cmd: [open, -a, Iterm.app, $repo]
+    os: darwin
   - label: Open Folder
-    cmd: [open, $repo]
+    cmd: [xdg-open, $repo]
   - label: Open VSCode
     cmd: [code, $repo]
   - label: Open Goland
     cmd: [open, -a, Goland.app, $repo]
+    os: darwin
+  - label: Open Goland
+    cmd: [ goland, $repo ]
+    os: linux

@@ -77,11 +77,11 @@ func Start() {
 	})
 
 	r.Methods(http.MethodGet).Path("/api/v1/cmds/global").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		enc(config.Config.GlobalCmds, writer)
+		enc(config.GlobalCmdS(), writer)
 	})
 
 	r.Methods(http.MethodGet).Path("/api/v1/cmds/repo").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		enc(config.Config.RepoCmds, writer)
+		enc(config.RepoCmdS(), writer)
 	})
 
 	r.Methods(http.MethodPost).Path("/api/v1/cmd/global").HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
